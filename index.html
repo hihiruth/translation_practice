@@ -24,15 +24,6 @@
         .btn-gray {
              background-image: linear-gradient(to right, #6b7280, #9ca3af);
         }
-        .btn-google {
-            background-color: #fff;
-            color: #333;
-            border: 1px solid #ddd;
-            background-image: none;
-        }
-        .btn-google:hover {
-             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
         #loader {
             border: 4px solid #e5e7eb;
             border-top: 4px solid #3b82f6;
@@ -45,7 +36,6 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        /* Tab styles */
         .tab-btn {
             border-bottom: 2px solid transparent;
         }
@@ -54,7 +44,6 @@
             color: #3b82f6;
             font-weight: 600;
         }
-        /* Animation */
         .fade-in {
             animation: fadeIn 0.5s ease-in-out;
         }
@@ -80,49 +69,53 @@
             <button id="sign-out-btn" class="btn-gray text-white font-bold py-2 px-4 text-sm rounded-lg">Sign Out</button>
         </div>
 
-        <!-- Login View -->
-        <div id="login-view" class="card p-8 bg-white border border-gray-200 rounded-xl shadow-sm text-center">
-            <h2 class="text-2xl font-bold mb-2">Welcome!</h2>
-            <p class="text-gray-600 mb-6">Please sign in to continue.</p>
-            <button id="google-signin-btn" class="btn-google w-full max-w-xs mx-auto font-medium py-2 px-4 rounded-lg shadow-sm flex items-center justify-center gap-3">
-                <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0 0 48 48">
-                    <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"></path><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"></path><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.222,0-9.565-3.501-11.088-8.264l-6.522,5.025C9.505,39.556,16.227,44,24,44z"></path><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.088,5.571l6.19,5.238C39.712,34.464,44,28.756,44,24C44,22.659,43.862,21.35,43.611,20.083z"></path>
-                </svg>
-                Sign in with Google
-            </button>
-            <p id="login-error" class="text-red-500 mt-4 text-sm text-left"></p>
-        </div>
-
-        <!-- Main App View (hidden by default) -->
-        <main id="app-view" class="hidden">
-            <!-- Tab Navigation -->
-            <div class="mb-4 border-b border-gray-200">
+        <!-- Main Content Area -->
+        <main id="app-view">
+             <!-- Tab Navigation -->
+            <div id="tabs-nav" class="mb-4 border-b border-gray-200">
                 <nav class="-mb-px flex space-x-8" aria-label="Tabs">
                     <button id="teacher-tab" class="tab-btn active whitespace-nowrap py-4 px-1 border-b-2 font-medium text-lg" data-target="teacher-panel">
-                        Teacher's Input
+                        Teacher Login
                     </button>
                     <button id="student-tab" class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-lg text-gray-500" data-target="student-panel">
-                        Student's Practice
+                        Student Practice
                     </button>
                 </nav>
             </div>
 
-            <!-- Tab Panels -->
+            <!-- Teacher Login / Input Panel -->
             <div id="teacher-panel" class="tab-panel">
-                <section class="card p-6 bg-white border border-gray-200 rounded-xl shadow-sm">
-                    <h2 class="text-2xl font-semibold text-gray-900 mb-4">1. Teacher's Input</h2>
+                 <!-- Login View -->
+                <div id="login-view" class="card p-8 bg-white border border-gray-200 rounded-xl shadow-sm">
+                    <h2 class="text-2xl font-bold mb-6 text-center">Teacher Login</h2>
+                    <div class="max-w-sm mx-auto">
+                        <div class="mb-4">
+                            <label for="email-input" class="block mb-2 text-sm font-medium text-gray-600">Email</label>
+                            <input type="email" id="email-input" class="w-full p-2.5 rounded-lg bg-gray-50 border border-gray-300 focus:outline-none focus:border-blue-500" required>
+                        </div>
+                        <div class="mb-6">
+                            <label for="password-input" class="block mb-2 text-sm font-medium text-gray-600">Password</label>
+                            <input type="password" id="password-input" class="w-full p-2.5 rounded-lg bg-gray-50 border border-gray-300 focus:outline-none focus:border-blue-500" required>
+                        </div>
+                        <button id="login-btn" class="btn w-full text-white font-bold py-2 px-4 rounded-lg shadow-md">Sign In</button>
+                        <p id="login-error" class="text-red-500 mt-4 text-sm text-center"></p>
+                    </div>
+                </div>
+                <!-- Teacher Input View (hidden by default) -->
+                <section id="teacher-input-view" class="hidden card p-6 bg-white border border-gray-200 rounded-xl shadow-sm">
+                    <h2 class="text-2xl font-semibold text-gray-900 mb-4">1. Create New Practice</h2>
                     <div class="space-y-4">
                         <div>
                             <label for="keywords-input" class="block mb-2 text-sm font-medium text-gray-600">Enter English keywords, phrases, or idioms (one per line):</label>
-                            <textarea id="keywords-input" rows="4" class="w-full p-2.5 rounded-lg bg-gray-50 border border-gray-300 text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50" placeholder="e.g.&#10;on the same page&#10;break a leg&#10;technology"></textarea>
+                            <textarea id="keywords-input" rows="4" class="w-full p-2.5 rounded-lg bg-gray-50 border border-gray-300 focus:outline-none focus:border-blue-500"></textarea>
                         </div>
                         <div>
-                            <label for="grammar-input" class="block mb-2 text-sm font-medium text-gray-600">Enter sentence patterns or grammar points (optional, one per line):</label>
-                            <textarea id="grammar-input" rows="3" class="w-full p-2.5 rounded-lg bg-gray-50 border border-gray-300 text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50" placeholder="e.g.&#10;雖然...但是... (suīrán...dànshì...)&#10;Subj. + 把 + Obj. + Verb"></textarea>
+                            <label for="grammar-input" class="block mb-2 text-sm font-medium text-gray-600">Enter sentence patterns or grammar points (optional):</label>
+                            <textarea id="grammar-input" rows="3" class="w-full p-2.5 rounded-lg bg-gray-50 border border-gray-300 focus:outline-none focus:border-blue-500"></textarea>
                         </div>
                         <div>
                             <label for="cefr-level-select" class="block mb-2 text-sm font-medium text-gray-600">Select CEFR Difficulty Level:</label>
-                            <select id="cefr-level-select" class="w-full p-2.5 rounded-lg bg-gray-50 border border-gray-300 text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50">
+                            <select id="cefr-level-select" class="w-full p-2.5 rounded-lg bg-gray-50 border border-gray-300">
                                 <option value="A1">A1 (Beginner)</option>
                                 <option value="A2">A2 (Elementary)</option>
                                 <option value="B1" selected>B1 (Intermediate)</option>
@@ -132,31 +125,29 @@
                             </select>
                         </div>
                         <div id="teacher-controls" class="flex items-center space-x-4">
-                            <button id="generate-btn" class="btn text-white font-bold py-2 px-4 rounded-lg shadow-md">
-                                Generate Practice Sentences
-                            </button>
+                            <button id="generate-btn" class="btn text-white font-bold py-2 px-4 rounded-lg shadow-md">Generate Practice Sentences</button>
                             <div id="loader" class="hidden"></div>
                         </div>
                          <div id="share-section" class="hidden mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg"></div>
                     </div>
                 </section>
             </div>
-
+            
+            <!-- Student Panel -->
             <div id="student-panel" class="tab-panel hidden">
                 <section class="card p-6 bg-white border border-gray-200 rounded-xl shadow-sm">
                      <div class="flex flex-wrap justify-between items-center mb-4 gap-4">
-                        <h2 class="text-2xl font-semibold text-gray-900">2. Student's Practice</h2>
+                        <h2 class="text-2xl font-semibold text-gray-900">Student Practice</h2>
                         <div class="flex items-center">
                             <label for="global-language-select" class="text-sm mr-2 text-gray-600 whitespace-nowrap">Feedback in:</label>
-                            <select id="global-language-select" class="rounded-lg bg-gray-50 border border-gray-300 text-sm p-1.5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                            <select id="global-language-select" class="rounded-lg bg-gray-50 border border-gray-300 text-sm p-1.5 focus:border-blue-500">
                                 <option value="English" selected>English</option>
                                 <option value="Traditional Chinese">繁體中文</option>
                             </select>
                         </div>
                      </div>
-
                      <div id="practice-area" class="space-y-6">
-                        <p class="text-gray-500 text-center">Open a shared link or wait for your teacher to create a new set.</p>
+                        <p class="text-gray-500 text-center">Open a shared practice link from your teacher to begin.</p>
                      </div>
                 </section>
             </div>
@@ -165,8 +156,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, addDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, addDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
         // --- Configuration ---
         const firebaseConfig = {
@@ -179,11 +170,7 @@
           measurementId: "G-RXZXJ7NZ6W"
         };
         const appId = firebaseConfig.appId;
-        const apiKey = "AIzaSyDBOfcLxvUEebTLW0UmILq56lOc8G1Q7xA";
-        
-        // IMPORTANT: Set your school's domain here. 
-        // Example: 'myschool.edu' or 'university.ac.uk'
-        const SCHOOL_DOMAIN = 'ruthyeh.tw'; 
+        const apiKey = "AIzaSyDBOfcLxvUEebTLW0UmILq56lOc8G1Q7xA"; // Canvas will provide the key
         
         // --- App Initialization ---
         const app = initializeApp(firebaseConfig);
@@ -192,123 +179,84 @@
         const genApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
 
         // --- DOM Elements ---
-        const loginView = document.getElementById('login-view');
-        const appView = document.getElementById('app-view');
         const userHeader = document.getElementById('user-header');
         const userEmailEl = document.getElementById('user-email');
+        const loginView = document.getElementById('login-view');
+        const teacherInputView = document.getElementById('teacher-input-view');
         const teacherTab = document.getElementById('teacher-tab');
         const studentTab = document.getElementById('student-tab');
-        const keywordsInput = document.getElementById('keywords-input');
+        const teacherPanel = document.getElementById('teacher-panel');
+        const studentPanel = document.getElementById('student-panel');
         const practiceArea = document.getElementById('practice-area');
         const loader = document.getElementById('loader');
-        const teacherPanel = document.getElementById('teacher-panel');
         const shareSection = document.getElementById('share-section');
 
-        let currentSentences = [];
-        let totalSentences = 0;
-        let checkedAnswers = 0;
         let currentUser = null;
-        let userRole = null;
 
         // --- Authentication Logic ---
-        onAuthStateChanged(auth, async (user) => {
+        onAuthStateChanged(auth, (user) => {
             if (user) {
-                // User is signed in.
+                // User is a logged-in teacher
                 currentUser = user;
-                await handleUserLoggedIn(user);
+                userEmailEl.textContent = user.email;
+                showTeacherView();
             } else {
-                // User is signed out.
+                // User is logged out or a student visiting a link
                 currentUser = null;
-                userRole = null;
-                showLoginView();
+                showPublicView();
             }
+            // Always check for a practice link in the URL on page load
+            loadPracticeFromUrl();
         });
 
-        async function handleUserLoggedIn(user) {
-            const userDocRef = doc(db, "users", user.uid);
-            const userDocSnap = await getDoc(userDocRef);
-
-            if (userDocSnap.exists()) {
-                userRole = userDocSnap.data().role;
-            } else {
-                // First time sign-in, check domain and create user doc.
-                if (user.email.endsWith(`@${SCHOOL_DOMAIN}`)) {
-                    userRole = 'student';
-                    await setDoc(userDocRef, {
-                        email: user.email,
-                        role: 'student',
-                        createdAt: serverTimestamp()
-                    });
-                } else {
-                    // Not a valid school domain.
-                    document.getElementById('login-error').textContent = `Please sign in with a valid @${SCHOOL_DOMAIN} account.`;
-                    await signOut(auth);
-                    return;
-                }
-            }
-            
-            userEmailEl.textContent = user.email;
-            updateUIVisibility();
-            showAppView();
-
-            // Auto-load practice set if ID is in URL
-            const params = new URLSearchParams(window.location.search);
-            const practiceId = params.get('practice');
-            if (practiceId) {
-                await loadPractice(practiceId);
-                studentTab.click();
-            }
-        }
-
-        document.getElementById('google-signin-btn').addEventListener('click', async () => {
-            const provider = new GoogleAuthProvider();
+        document.getElementById('login-btn').addEventListener('click', async () => {
+            const email = document.getElementById('email-input').value;
+            const password = document.getElementById('password-input').value;
             const loginErrorEl = document.getElementById('login-error');
+            loginErrorEl.textContent = '';
+            
+            if (!email || !password) {
+                loginErrorEl.textContent = "Please enter both email and password.";
+                return;
+            }
+
             try {
-                await signInWithPopup(auth, provider);
+                await signInWithEmailAndPassword(auth, email, password);
             } catch (error) {
-                console.error("Google Sign-in Error:", error);
-                if (error.code === 'auth/unauthorized-domain') {
-                    loginErrorEl.innerHTML = `
-                        <p class="font-bold">This domain is not authorized.</p>
-                        <p class="mt-2">To fix this, you must add the domain you are using to the list of authorized domains in your Firebase project.</p>
-                        <p class="mt-2">Go to: <br><strong>Firebase Console > Authentication > Sign-in method > Authorized domains</strong>, and add <strong>${window.location.hostname}</strong>.</p>
-                    `;
+                console.error("Login Error:", error);
+                if (error.code === 'auth/invalid-credential') {
+                    loginErrorEl.textContent = "Incorrect email or password. Please double-check the credentials you set in the Firebase Authentication console.";
+                } else if (error.code === 'auth/too-many-requests') {
+                    loginErrorEl.textContent = "Access to this account has been temporarily disabled due to many failed login attempts. You can try again later.";
                 } else {
-                    loginErrorEl.textContent = "Could not sign in with Google. Please try again.";
+                    loginErrorEl.textContent = "An unknown error occurred. Please try again.";
                 }
             }
         });
-        
+
         document.getElementById('sign-out-btn').addEventListener('click', () => signOut(auth));
 
         // --- UI Visibility ---
-        function showLoginView() {
-            loginView.classList.remove('hidden');
-            appView.classList.add('hidden');
+        function showPublicView() {
             userHeader.classList.add('hidden');
+            loginView.classList.remove('hidden');
+
+            teacherInputView.classList.add('hidden');
+            teacherTab.textContent = 'Teacher Login';
         }
 
-        function showAppView() {
-            loginView.classList.add('hidden');
-            appView.classList.remove('hidden');
+        function showTeacherView() {
             userHeader.classList.remove('hidden');
-        }
-        
-        function updateUIVisibility() {
-            if (userRole === 'teacher') {
-                teacherTab.style.display = 'flex';
-                teacherTab.click();
-            } else { // Student or other roles
-                teacherTab.style.display = 'none';
-                studentTab.click();
-            }
+            loginView.classList.add('hidden');
+            teacherInputView.classList.remove('hidden');
+            teacherTab.textContent = "Teacher's Input";
         }
 
         // --- Tab Logic ---
         [teacherTab, studentTab].forEach(tab => {
             tab.addEventListener('click', () => {
                 [teacherTab, studentTab].forEach(t => t.classList.remove('active'));
-                [teacherPanel, document.getElementById('student-panel')].forEach(p => p.classList.add('hidden'));
+                [teacherPanel, studentPanel].forEach(p => p.classList.add('hidden'));
                 tab.classList.add('active');
                 document.getElementById(tab.dataset.target).classList.remove('hidden');
             });
@@ -316,31 +264,47 @@
 
         // --- Main App Logic (Generate, Share, Load, etc.) ---
         document.getElementById('generate-btn').addEventListener('click', generateSentences);
-
+        
+        async function loadPracticeFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            const practiceId = params.get('practice');
+            if (practiceId) {
+                await loadPractice(practiceId);
+                studentTab.click(); // Switch to student view if a practice set is loaded
+            }
+        }
+        
         async function generateSentences() {
-            const keywords = keywordsInput.value.trim();
+            const keywordsInput = document.getElementById('keywords-input');
             const grammarInput = document.getElementById('grammar-input');
-            const grammarPoints = grammarInput.value.trim();
-            const cefrLevel = document.getElementById('cefr-level-select').value;
-
-            if (!keywords) return;
+            const cefrLevelSelect = document.getElementById('cefr-level-select');
+            
+            const keywords = keywordsInput.value.trim();
+             if (!keywords) {
+                const teacherControls = document.getElementById('teacher-controls');
+                let validationMsg = document.getElementById('validation-msg');
+                if (!validationMsg) {
+                    validationMsg = document.createElement('p');
+                    validationMsg.id = 'validation-msg';
+                    validationMsg.className = 'text-yellow-600 text-sm ml-4';
+                    teacherControls.appendChild(validationMsg);
+                }
+                validationMsg.textContent = 'Please enter at least one keyword.';
+                return;
+            } else {
+                 const validationMsg = document.getElementById('validation-msg');
+                 if(validationMsg) validationMsg.textContent = '';
+            }
 
             loader.classList.remove('hidden');
             document.getElementById('generate-btn').disabled = true;
             practiceArea.innerHTML = '<p class="text-gray-500">AI is crafting unique sentences for you...</p>';
             shareSection.classList.add('hidden');
-            
-            const systemInstruction = `You are an expert Chinese-English language instructor creating practice materials.
-Your task is to generate between 2 and 4 distinct, natural-sounding Chinese sentences for a student.
-The generated sentences and vocabulary MUST be appropriate for the ${cefrLevel} CEFR level of Chinese proficiency.
-Use Traditional Chinese characters (繁體中文) for all Chinese text.
-You will be given English keywords and, optionally, Chinese grammar points.
-1. Each generated Chinese sentence MUST incorporate one of the provided grammar points (if any are given).
-2. The direct English translation of EACH Chinese sentence MUST contain one of the provided English keywords or phrases.
-Provide pinyin with tone marks for each Chinese sentence.
-Return the output as a valid JSON array of objects. Each object must have three properties: "chineseSentence", "pinyin", and "englishTranslation".
-Do not include any introductory text or markdown formatting.`;
 
+            const grammarPoints = grammarInput.value.trim();
+            const cefrLevel = cefrLevelSelect.value;
+            
+            const systemPrompt = `You are an expert Chinese-English language instructor creating practice materials. Your task is to generate between 2 and 4 distinct, natural-sounding Chinese sentences for a student. The generated sentences and vocabulary MUST be appropriate for the ${cefrLevel} CEFR level of Chinese proficiency. Use Traditional Chinese characters (繁體中文) for all Chinese text. You will be given English keywords and, optionally, Chinese grammar points. 1. Each generated Chinese sentence MUST incorporate one of the provided grammar points (if any are given). 2. The direct English translation of EACH Chinese sentence MUST contain one of the provided English keywords or phrases. Provide pinyin with tone marks for each Chinese sentence. Return the output as a valid JSON array of objects. Each object must have three properties: "chineseSentence", "pinyin", and "englishTranslation". Do not include any introductory text or markdown formatting.`;
             let userQuery = `English Keywords:\n${keywords}`;
             if (grammarPoints) {
                 userQuery += `\n\nChinese Grammar Points / Sentence Patterns to use:\n${grammarPoints}`;
@@ -349,41 +313,42 @@ Do not include any introductory text or markdown formatting.`;
             try {
                 const payload = {
                     contents: [{ parts: [{ text: userQuery }] }],
-                    systemInstruction: { parts: [{ text: systemInstruction }] },
+                    systemInstruction: { parts: [{ text: systemPrompt }] },
                     generationConfig: { responseMimeType: "application/json", responseSchema: { type: "ARRAY", items: { type: "OBJECT", properties: { "chineseSentence": { "type": "STRING" }, "pinyin": { "type": "STRING" }, "englishTranslation": { "type": "STRING" } } } } }
                 };
                 const response = await fetch(genApiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                if (!response.ok) throw new Error(`API Error: ${response.status} ${response.statusText}`);
-
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({})); // try to get json, but don't fail if it's not json
+                    console.error("API Error Response:", errorData);
+                    throw new Error(`API Error: ${response.status} ${response.statusText}`);
+                }
                 const result = await response.json();
                 const jsonText = result.candidates[0].content.parts[0].text;
                 const sentences = JSON.parse(jsonText);
-                currentSentences = sentences;
-                totalSentences = sentences.length;
-                checkedAnswers = 0;
                 displaySentences(sentences);
-                
-                setupShareSection();
+                setupShareSection(sentences);
                 studentTab.click();
             } catch (error) {
                 console.error("Error generating sentences:", error);
-                practiceArea.innerHTML = `<p class="text-red-500">An error occurred: ${error.message}. Please check the console for details.</p>`;
+                let errorMessage = "An error occurred while generating sentences. Please try again.";
+                 // This generic error is better for the Canvas environment
+                practiceArea.innerHTML = `<p class="text-red-500">${errorMessage}</p>`;
             } finally {
                 loader.classList.add('hidden');
                 document.getElementById('generate-btn').disabled = false;
             }
         }
         
-        function setupShareSection() {
+        function setupShareSection(sentences) {
             shareSection.innerHTML = `
                 <p class="text-sm font-medium text-gray-700 mb-2">Share this practice set with your students:</p>
                 <button id="share-btn" class="btn text-white font-bold py-2 px-4 rounded-lg shadow-md">Share Practice</button>
             `;
             shareSection.classList.remove('hidden');
-            document.getElementById('share-btn').addEventListener('click', sharePractice);
+            document.getElementById('share-btn').addEventListener('click', () => sharePractice(sentences));
         }
-        
-        async function sharePractice() {
+
+        async function sharePractice(sentences) {
             const shareBtn = document.getElementById('share-btn');
             shareBtn.disabled = true;
             shareBtn.textContent = 'Sharing...';
@@ -391,14 +356,12 @@ Do not include any introductory text or markdown formatting.`;
             try {
                 const practiceCollection = collection(db, `/artifacts/${appId}/public/data/practiceSets`);
                 const docRef = await addDoc(practiceCollection, {
-                    sentences: currentSentences,
+                    sentences: sentences,
                     createdAt: serverTimestamp(),
                     teacherId: currentUser.uid
                 });
-                
                 const baseUrl = window.location.href.split('?')[0];
                 const shareUrl = `${baseUrl}?practice=${docRef.id}`;
-
                 shareSection.innerHTML = `
                     <p class="font-medium text-green-700">Practice Shared!</p>
                     <p class="text-sm text-gray-600 mt-1">Share this link with your students:</p>
@@ -413,40 +376,37 @@ Do not include any introductory text or markdown formatting.`;
                     copyBtn.textContent = 'Copied!';
                     setTimeout(() => { copyBtn.textContent = 'Copy Link'; }, 2000);
                 });
-
             } catch (error) {
                 console.error("Error sharing practice:", error);
                 shareSection.innerHTML = `<p class="text-red-500">Could not share practice. Please try again.</p>`;
-                 setTimeout(setupShareSection, 3000);
+                setTimeout(() => setupShareSection(sentences), 3000);
             }
         }
-        
+
         async function loadPractice(practiceId) {
-            if (!practiceId) return;
             practiceArea.innerHTML = `<p class="text-gray-500 text-center">Loading practice set...</p>`;
             try {
                 const docRef = doc(db, `/artifacts/${appId}/public/data/practiceSets`, practiceId);
                 const docSnap = await getDoc(docRef);
-
                 if (docSnap.exists()) {
                     const data = docSnap.data();
-                    currentSentences = data.sentences;
-                    totalSentences = currentSentences.length;
-                    checkedAnswers = 0;
-                    displaySentences(currentSentences);
+                    displaySentences(data.sentences);
                 } else {
                     practiceArea.innerHTML = `<p class="text-red-500 text-center">Could not load practice set. The link may be invalid or expired.</p>`;
                 }
             } catch (error) {
                 console.error("Error loading practice:", error);
-                 practiceArea.innerHTML = `<p class="text-red-500 text-center">An error occurred while loading the practice set.</p>`;
+                practiceArea.innerHTML = `<p class="text-red-500 text-center">An error occurred while loading the practice set.</p>`;
             }
         }
 
         function displaySentences(sentences) {
             practiceArea.innerHTML = '';
+            let checkedAnswers = 0;
+            const totalSentences = sentences.length;
+
             if (!sentences || sentences.length === 0) {
-                practiceArea.innerHTML = '<p class="text-gray-500">Please try different keywords.</p>';
+                practiceArea.innerHTML = '<p class="text-gray-500">No sentences found.</p>';
                 return;
             }
             sentences.forEach((sentence, index) => {
@@ -460,12 +420,12 @@ Do not include any introductory text or markdown formatting.`;
                     </div>
                     <div>
                         <label for="translation-input-${index}" class="block mb-1 text-sm font-medium text-gray-600">Your English translation:</label>
-                        <textarea id="translation-input-${index}" rows="2" class="w-full p-2 rounded-lg bg-gray-50 border border-gray-300 text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50"></textarea>
+                        <textarea id="translation-input-${index}" rows="2" class="w-full p-2 rounded-lg bg-gray-50 border border-gray-300 focus:outline-none focus:border-blue-500/50"></textarea>
                     </div>
                     <div id="feedback-area-${index}"></div>
                     <div class="flex flex-wrap items-center gap-2 pt-2">
                         <button class="btn check-btn text-white font-bold py-2 px-4 rounded-lg shadow-md flex items-center gap-2" data-index="${index}" data-answer="${encodeURIComponent(sentence.englishTranslation)}">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check2-circle" viewBox="0 0 16 16"><path d="M2.5 8a5.5 5.5 0 0 1 8.25-4.764.5.5 0 0 0 .5-.866A6.5 6.5 0 1 0 14.5 8a.5.5 0 0 0-1 0 5.5 5.5 0 1 1-11 0z"/><path d="M15.354 3.354a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l7-7z"/></svg>
+                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check2-circle" viewBox="0 0 16 16"><path d="M2.5 8a5.5 5.5 0 0 1 8.25-4.764.5.5 0 0 0 .5-.866A6.5 6.5 0 1 0 14.5 8a.5.5 0 0 0-1 0 5.5 5.5 0 1 1-11 0z"/><path d="M15.354 3.354a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l7-7z"/></svg>
                             Check My Answer
                         </button>
                         <button class="btn btn-gray toggle-answer-btn text-white font-bold py-2 px-4 rounded-lg shadow-md flex items-center gap-2" data-index="${index}">
@@ -476,7 +436,10 @@ Do not include any introductory text or markdown formatting.`;
                 `;
                 practiceArea.appendChild(practiceCard);
             });
-            document.querySelectorAll('.check-btn').forEach(btn => btn.addEventListener('click', checkAnswer));
+            document.querySelectorAll('.check-btn').forEach(btn => btn.addEventListener('click', (e) => checkAnswer(e, () => {
+                checkedAnswers++;
+                if (checkedAnswers === totalSentences) showCompletionMessage();
+            })));
             document.querySelectorAll('.toggle-answer-btn').forEach(btn => btn.addEventListener('click', toggleAnswer));
         }
         
@@ -485,15 +448,12 @@ Do not include any introductory text or markdown formatting.`;
             document.getElementById(`answer-area-${index}`).classList.toggle('hidden');
         }
 
-        async function checkAnswer(event) {
+        async function checkAnswer(event, onFirstCheckCallback) {
             const button = event.currentTarget;
             const index = button.dataset.index;
-            const correctAnswer = decodeURIComponent(button.dataset.answer);
             const studentInput = document.getElementById(`translation-input-${index}`);
             const studentAnswer = studentInput.value.trim();
             const feedbackArea = document.getElementById(`feedback-area-${index}`);
-            const languageSelect = document.getElementById('global-language-select');
-            const feedbackLanguage = languageSelect.value;
 
             if (!studentAnswer) {
                 feedbackArea.innerHTML = `<div class="fade-in p-3 mt-3 rounded-lg bg-yellow-100 text-yellow-800"><p>Please enter your translation first.</p></div>`;
@@ -502,38 +462,38 @@ Do not include any introductory text or markdown formatting.`;
 
             button.disabled = true;
             button.innerHTML = 'Evaluating...';
+            feedbackArea.innerHTML = '<p class="mt-3 text-gray-500">AI is evaluating your translation...</p>';
             
-            let systemInstruction = '';
-            if (feedbackLanguage === 'Traditional Chinese') {
-                systemInstruction = `你是一位友善且鼓勵人的中文老師...`; // Remainder is the same
-            } else {
-                systemInstruction = `You are a friendly and encouraging English language tutor...`; // Remainder is the same
-            }
+            const correctAnswer = decodeURIComponent(button.dataset.answer);
+            const feedbackLanguage = document.getElementById('global-language-select').value;
+            let systemPrompt = feedbackLanguage === 'Traditional Chinese'
+                ? `你是一位友善且鼓勵人的中文老師。學生嘗試翻譯一個中文句子，請用繁體中文提供回饋。比較學生的翻譯和正確答案。重點在於核心意思和關鍵詞彙/慣用語是否正確。輕微的語法錯誤或不同措辭可以接受。用一兩句話提供簡短有幫助的回饋。開頭請用「做得很好！」、「快對了！」或類似的正面詞語。`
+                : `You are a friendly and encouraging English language tutor. A student has attempted to translate a Chinese sentence. Compare the student's translation to the correct one. Focus on whether the core meaning and key vocabulary/idioms are correct. Minor grammatical errors or different phrasing are acceptable. Provide brief, helpful feedback in one or two sentences. Start with "Good attempt!", "Almost there!", "Great job!", or a similar positive phrase.`;
             const userQuery = `Correct Translation: "${correctAnswer}"\nStudent's Translation: "${studentAnswer}"`;
-            try {
-                 const payload = { 
-                    contents: [{ parts: [{ text: userQuery }] }], 
-                    systemInstruction: { parts: [{ text: systemInstruction }] } 
-                };
-                const response = await fetch(genApiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                if (!response.ok) throw new Error(`API Error: ${response.status} ${response.statusText}`);
 
+            try {
+                const payload = { contents: [{ parts: [{ text: userQuery }] }], systemInstruction: { parts: [{ text: systemPrompt }] } };
+                const response = await fetch(genApiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                 if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    console.error("API Error Response:", errorData);
+                    throw new Error(`API Error: ${response.status} ${response.statusText}`);
+                }
                 const result = await response.json();
                 const feedbackText = result.candidates[0].content.parts[0].text;
-                feedbackArea.innerHTML = `<div class="fade-in p-3 mt-3 rounded-lg bg-blue-100 text-blue-800 flex items-start gap-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-lightbulb-fill flex-shrink-0 mt-1" viewBox="0 0 16 16"><path d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13h-5a.5.5 0 0 1-.46-.302l-.761-1.77a1.964 1.964 0 0 0-.453-.618A5.984 5.984 0 0 1 2 6zm3 8.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1-.5-.5z"/></svg>
-                    <p>${feedbackText}</p>
-                </div>`;
+                feedbackArea.innerHTML = `<div class="fade-in p-3 mt-3 rounded-lg bg-blue-100 text-blue-800 flex items-start gap-3"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-lightbulb-fill flex-shrink-0 mt-1" viewBox="0 0 16 16"><path d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13h-5a.5.5 0 0 1-.46-.302l-.761-1.77a1.964 1.964 0 0 0-.453-.618A5.984 5.984 0 0 1 2 6zm3 8.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1-.5-.5z"/></svg><p>${feedbackText}</p></div>`;
+                
                 if (!button.dataset.checked) {
                     button.dataset.checked = "true";
-                    checkedAnswers++;
-                    if (checkedAnswers === totalSentences) {
-                        showCompletionMessage();
-                    }
+                    onFirstCheckCallback();
                 }
             } catch (error) {
                 console.error("Error checking answer:", error);
-                feedbackArea.innerHTML = `<div class="fade-in p-3 mt-3 rounded-lg bg-red-100 text-red-800"><p>Could not get feedback: ${error.message}</p></div>`;
+                let errorMessage = "Could not get feedback at this time.";
+                 if (error.message.includes("API Error: 400")) {
+                    errorMessage = "Could not get feedback. The API key may be invalid or missing.";
+                }
+                feedbackArea.innerHTML = `<div class="fade-in p-3 mt-3 rounded-lg bg-red-100 text-red-800"><p>${errorMessage}</p></div>`;
             } finally {
                 button.disabled = false;
                 button.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check2-circle" viewBox="0 0 16 16"><path d="M2.5 8a5.5 5.5 0 0 1 8.25-4.764.5.5 0 0 0 .5-.866A6.5 6.5 0 1 0 14.5 8a.5.5 0 0 0-1 0 5.5 5.5 0 1 1-11 0z"/><path d="M15.354 3.354a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l7-7z"/></svg> Check My Answer`;
@@ -543,13 +503,9 @@ Do not include any introductory text or markdown formatting.`;
         function showCompletionMessage() {
             const completionDiv = document.createElement('div');
             completionDiv.className = 'fade-in mt-8 p-6 text-center bg-green-100 border-2 border-green-300 rounded-xl';
-            completionDiv.innerHTML = `
-                <h3 class="text-2xl font-bold text-green-800">🎉 Practice Complete! 🎉</h3>
-                <p class="mt-2 text-green-700">Great job! You've completed this set. Go back to the Teacher's Input tab to create a new one.</p>
-            `;
+            completionDiv.innerHTML = `<h3 class="text-2xl font-bold text-green-800">🎉 Practice Complete! 🎉</h3><p class="mt-2 text-green-700">Great job! You've completed this set.</p>`;
             practiceArea.appendChild(completionDiv);
         }
-
     </script>
 </body>
 </html>
