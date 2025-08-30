@@ -303,8 +303,18 @@
 
             const grammarPoints = grammarInput.value.trim();
             const cefrLevel = cefrLevelSelect.value;
-            
-            const systemPrompt = `You are an expert Chinese-English language instructor creating practice materials. Your task is to generate between 2 and 4 distinct, natural-sounding Chinese sentences for a student. The generated sentences and vocabulary MUST be appropriate for the ${cefrLevel} CEFR level of Chinese proficiency. Use Traditional Chinese characters (繁體中文) for all Chinese text. You will be given English keywords and, optionally, Chinese grammar points. 1. Each generated Chinese sentence MUST incorporate one of the provided grammar points (if any are given). 2. The direct English translation of EACH Chinese sentence MUST contain one of the provided English keywords or phrases. Provide pinyin with tone marks for each Chinese sentence. Return the output as a valid JSON array of objects. Each object must have three properties: "chineseSentence", "pinyin", and "englishTranslation". Do not include any introductory text or markdown formatting.`;
+
+            const systemPrompt = `You are an expert Chinese-English language instructor creating practice materials.
+Your task is to generate a short, coherent paragraph in Traditional Chinese (繁體中文) consisting of 2 to 4 sentences.
+This paragraph must tell a single, connected story or describe a single scene.
+Crucially:
+1. The English vocabulary and sentence structures used in the translation must be appropriate for the specified English CEFR level: ${cefrLevel}.
+2. The direct English translation of the Chinese paragraph MUST naturally contain the user-provided English keywords or phrases.
+3. If provided, the Chinese paragraph must incorporate one of the Chinese grammar points.
+4. For each Chinese sentence in the paragraph, provide its corresponding pinyin with tone marks.
+Return the output as a valid JSON array of objects. Each object must have three properties: "chineseSentence", "pinyin", and "englishTranslation".
+Do not include any introductory text or markdown formatting. The sentences should logically follow one another.`;
+            //const systemPrompt = `You are an expert Chinese-English language instructor creating practice materials. Your task is to generate between 2 and 4 distinct, natural-sounding Chinese sentences for a student. The generated sentences and vocabulary MUST be appropriate for the ${cefrLevel} CEFR level of Chinese proficiency. Use Traditional Chinese characters (繁體中文) for all Chinese text. You will be given English keywords and, optionally, Chinese grammar points. 1. Each generated Chinese sentence MUST incorporate one of the provided grammar points (if any are given). 2. The direct English translation of EACH Chinese sentence MUST contain one of the provided English keywords or phrases. Provide pinyin with tone marks for each Chinese sentence. Return the output as a valid JSON array of objects. Each object must have three properties: "chineseSentence", "pinyin", and "englishTranslation". Do not include any introductory text or markdown formatting.`;
             let userQuery = `English Keywords:\n${keywords}`;
             if (grammarPoints) {
                 userQuery += `\n\nChinese Grammar Points / Sentence Patterns to use:\n${grammarPoints}`;
