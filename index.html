@@ -275,35 +275,235 @@
         }
         
         async function generateSentences() {
-            // Function content is the same as the previous correct version
+            const keywordsInput = document.getElementById('keywords-input');
+            const grammarInput = document.getElementById('grammar-input');
+            const cefrLevelSelect = document.getElementById('cefr-level-select');
+            
+            const keywords = keywordsInput.value.trim();
+             if (!keywords) {
+                const teacherControls = document.getElementById('teacher-controls');
+                let validationMsg = document.getElementById('validation-msg');
+                if (!validationMsg) {
+                    validationMsg = document.createElement('p');
+                    validationMsg.id = 'validation-msg';
+                    validationMsg.className = 'text-yellow-600 text-sm ml-4';
+                    teacherControls.appendChild(validationMsg);
+                }
+                validationMsg.textContent = 'Please enter at least one keyword.';
+                return;
+            } else {
+                 const validationMsg = document.getElementById('validation-msg');
+                 if(validationMsg) validationMsg.textContent = '';
+            }
+
+            loader.classList.remove('hidden');
+            document.getElementById('generate-btn').disabled = true;
+            practiceArea.innerHTML = '<p class="text-gray-500">AI is crafting unique sentences for you...</p>';
+            shareSection.classList.add('hidden');
+
+            const grammarPoints = grammarInput.value.trim();
+            const cefrLevel = cefrLevelSelect.value;
+            
+            const systemPrompt = `You are an expert Chinese-English language instructor creating practice materials. Your task is to generate between 2 and 4 distinct, natural-sounding Chinese sentences for a student. The generated sentences and vocabulary MUST be appropriate for the ${cefrLevel} CEFR level of Chinese proficiency. Use Traditional Chinese characters (繁體中文) for all Chinese text. You will be given English keywords and, optionally, Chinese grammar points. 1. Each generated Chinese sentence MUST incorporate one of the provided grammar points (if any are given). 2. The direct English translation of EACH Chinese sentence MUST contain one of the provided English keywords or phrases. Provide pinyin with tone marks for each Chinese sentence. Return the output as a valid JSON array of objects. Each object must have three properties: "chineseSentence", "pinyin", and "englishTranslation". Do not include any introductory text or markdown formatting.`;
+            let userQuery = `English Keywords:\n${keywords}`;
+            if (grammarPoints) {
+                userQuery += `\n\nChinese Grammar Points / Sentence Patterns to use:\n${grammarPoints}`;
+            }
+
+            try {
+                const payload = {
+                    contents: [{ parts: [{ text: userQuery }] }],
+                    systemInstruction: { parts: [{ text: systemPrompt }] },
+                    generationConfig: { responseMimeType: "application/json", responseSchema: { type: "ARRAY", items: { type: "OBJECT", properties: { "chineseSentence": { "type": "STRING" }, "pinyin": { "type": "STRING" }, "englishTranslation": { "type": "STRING" } } } } }
+                };
+                const response = await fetch(genApiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({})); 
+                    console.error("API Error Response:", errorData);
+                    throw new Error(`API Error: ${response.status} ${response.statusText}`);
+                }
+                const result = await response.json();
+                const jsonText = result.candidates[0].content.parts[0].text;
+                const sentences = JSON.parse(jsonText);
+                displaySentences(sentences);
+                setupShareSection(sentences);
+                studentTab.click();
+            } catch (error) {
+                console.error("Error generating sentences:", error);
+                let errorMessage = "An error occurred while generating sentences. Please try again.";
+                practiceArea.innerHTML = `<p class="text-red-500">${errorMessage}</p>`;
+            } finally {
+                loader.classList.add('hidden');
+                document.getElementById('generate-btn').disabled = false;
+            }
         }
         
         function setupShareSection(sentences) {
-            // Function content is the same as the previous correct version
+            shareSection.innerHTML = `
+                <p class="text-sm font-medium text-gray-700 mb-2">Share this practice set with your students:</p>
+                <button id="share-btn" class="btn text-white font-bold py-2 px-4 rounded-lg shadow-md">Share Practice</button>
+            `;
+            shareSection.classList.remove('hidden');
+            document.getElementById('share-btn').addEventListener('click', () => sharePractice(sentences));
         }
 
         async function sharePractice(sentences) {
-            // Function content is the same as the previous correct version
+            const shareBtn = document.getElementById('share-btn');
+            shareBtn.disabled = true;
+            shareBtn.textContent = 'Sharing...';
+
+            try {
+                const practiceCollection = collection(db, `/artifacts/${appId}/public/data/practiceSets`);
+                const docRef = await addDoc(practiceCollection, {
+                    sentences: sentences,
+                    createdAt: serverTimestamp(),
+                    teacherId: currentUser.uid
+                });
+                const baseUrl = window.location.href.split('?')[0];
+                const shareUrl = `${baseUrl}?practice=${docRef.id}`;
+                shareSection.innerHTML = `
+                    <p class="font-medium text-green-700">Practice Shared!</p>
+                    <p class="text-sm text-gray-600 mt-1">Share this link with your students:</p>
+                    <div class="mt-2 flex items-center gap-2">
+                        <input type="text" readonly value="${shareUrl}" class="w-full p-2 rounded-lg border bg-gray-100 font-mono text-sm">
+                        <button id="copy-link-btn" class="btn text-white font-bold py-2 px-4 rounded-lg shadow-md whitespace-nowrap">Copy Link</button>
+                    </div>
+                `;
+                document.getElementById('copy-link-btn').addEventListener('click', () => {
+                    navigator.clipboard.writeText(shareUrl);
+                    const copyBtn = document.getElementById('copy-link-btn');
+                    copyBtn.textContent = 'Copied!';
+                    setTimeout(() => { copyBtn.textContent = 'Copy Link'; }, 2000);
+                });
+            } catch (error) {
+                console.error("Error sharing practice:", error);
+                shareSection.innerHTML = `<p class="text-red-500">Could not share practice. Please try again.</p>`;
+                setTimeout(() => setupShareSection(sentences), 3000);
+            }
         }
 
         async function loadPractice(practiceId) {
-            // Function content is the same as the previous correct version
+            practiceArea.innerHTML = `<p class="text-gray-500 text-center">Loading practice set...</p>`;
+            try {
+                const docRef = doc(db, `/artifacts/${appId}/public/data/practiceSets`, practiceId);
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    displaySentences(data.sentences);
+                } else {
+                    practiceArea.innerHTML = `<p class="text-red-500 text-center">Could not load practice set. The link may be invalid or expired.</p>`;
+                }
+            } catch (error) {
+                console.error("Error loading practice:", error);
+                practiceArea.innerHTML = `<p class="text-red-500 text-center">An error occurred while loading the practice set.</p>`;
+            }
         }
 
         function displaySentences(sentences) {
-            // Function content is the same as the previous correct version
+            practiceArea.innerHTML = '';
+            let checkedAnswers = 0;
+            const totalSentences = sentences.length;
+
+            if (!sentences || sentences.length === 0) {
+                practiceArea.innerHTML = '<p class="text-gray-500">No sentences found.</p>';
+                return;
+            }
+            sentences.forEach((sentence, index) => {
+                const practiceCard = document.createElement('div');
+                practiceCard.className = 'p-4 border border-gray-200 rounded-lg space-y-3';
+                practiceCard.innerHTML = `
+                    <p class="text-2xl font-semibold text-gray-800">${sentence.chineseSentence}</p>
+                    <div id="answer-area-${index}" class="hidden p-3 bg-green-50 rounded-lg">
+                        <p class="text-md text-gray-500 italic">${sentence.pinyin}</p>
+                        <p class="text-md text-green-700 mt-1"><strong>Correct Translation:</strong> ${sentence.englishTranslation}</p>
+                    </div>
+                    <div>
+                        <label for="translation-input-${index}" class="block mb-1 text-sm font-medium text-gray-600">Your English translation:</label>
+                        <textarea id="translation-input-${index}" rows="2" class="w-full p-2 rounded-lg bg-gray-50 border border-gray-300 focus:outline-none focus:border-blue-500/50"></textarea>
+                    </div>
+                    <div id="feedback-area-${index}"></div>
+                    <div class="flex flex-wrap items-center gap-2 pt-2">
+                        <button class="btn check-btn text-white font-bold py-2 px-4 rounded-lg shadow-md flex items-center gap-2" data-index="${index}" data-answer="${encodeURIComponent(sentence.englishTranslation)}">
+                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check2-circle" viewBox="0 0 16 16"><path d="M2.5 8a5.5 5.5 0 0 1 8.25-4.764.5.5 0 0 0 .5-.866A6.5 6.5 0 1 0 14.5 8a.5.5 0 0 0-1 0 5.5 5.5 0 1 1-11 0z"/><path d="M15.354 3.354a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l7-7z"/></svg>
+                            Check My Answer
+                        </button>
+                        <button class="btn btn-gray toggle-answer-btn text-white font-bold py-2 px-4 rounded-lg shadow-md flex items-center gap-2" data-index="${index}">
+                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16"><path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/><path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/></svg>
+                            Show/Hide Answer
+                        </button>
+                    </div>
+                `;
+                practiceArea.appendChild(practiceCard);
+            });
+            document.querySelectorAll('.check-btn').forEach(btn => btn.addEventListener('click', (e) => checkAnswer(e, () => {
+                checkedAnswers++;
+                if (checkedAnswers === totalSentences) showCompletionMessage();
+            })));
+            document.querySelectorAll('.toggle-answer-btn').forEach(btn => btn.addEventListener('click', toggleAnswer));
         }
         
         function toggleAnswer(event) {
-            // Function content is the same as the previous correct version
+            const index = event.currentTarget.dataset.index;
+            document.getElementById(`answer-area-${index}`).classList.toggle('hidden');
         }
 
         async function checkAnswer(event, onFirstCheckCallback) {
-            // Function content is the same as the previous correct version
+            const button = event.currentTarget;
+            const index = button.dataset.index;
+            const studentInput = document.getElementById(`translation-input-${index}`);
+            const studentAnswer = studentInput.value.trim();
+            const feedbackArea = document.getElementById(`feedback-area-${index}`);
+
+            if (!studentAnswer) {
+                feedbackArea.innerHTML = `<div class="fade-in p-3 mt-3 rounded-lg bg-yellow-100 text-yellow-800"><p>Please enter your translation first.</p></div>`;
+                return;
+            }
+
+            button.disabled = true;
+            button.innerHTML = 'Evaluating...';
+            feedbackArea.innerHTML = '<p class="mt-3 text-gray-500">AI is evaluating your translation...</p>';
+            
+            const correctAnswer = decodeURIComponent(button.dataset.answer);
+            const feedbackLanguage = document.getElementById('global-language-select').value;
+            let systemPrompt = feedbackLanguage === 'Traditional Chinese'
+                ? `你是一位友善且鼓勵人的中文老師。學生嘗試翻譯一個中文句子，請用繁體中文提供回饋。比較學生的翻譯和正確答案。重點在於核心意思和關鍵詞彙/慣用語是否正確。輕微的語法錯誤或不同措辭可以接受。用一兩句話提供簡短有幫助的回饋。開頭請用「做得很好！」、「快對了！」或類似的正面詞語。`
+                : `You are a friendly and encouraging English language tutor. A student has attempted to translate a Chinese sentence. Compare the student's translation to the correct one. Focus on whether the core meaning and key vocabulary/idioms are correct. Minor grammatical errors or different phrasing are acceptable. Provide brief, helpful feedback in one or two sentences. Start with "Good attempt!", "Almost there!", "Great job!", or a similar positive phrase.`;
+            const userQuery = `Correct Translation: "${correctAnswer}"\nStudent's Translation: "${studentAnswer}"`;
+
+            try {
+                const payload = { contents: [{ parts: [{ text: userQuery }] }], systemInstruction: { parts: [{ text: systemPrompt }] } };
+                const response = await fetch(genApiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                 if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    console.error("API Error Response:", errorData);
+                    throw new Error(`API Error: ${response.status} ${response.statusText}`);
+                }
+                const result = await response.json();
+                const feedbackText = result.candidates[0].content.parts[0].text;
+                feedbackArea.innerHTML = `<div class="fade-in p-3 mt-3 rounded-lg bg-blue-100 text-blue-800 flex items-start gap-3"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-lightbulb-fill flex-shrink-0 mt-1" viewBox="0 0 16 16"><path d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13h-5a.5.5 0 0 1-.46-.302l-.761-1.77a1.964 1.964 0 0 0-.453-.618A5.984 5.984 0 0 1 2 6zm3 8.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1-.5-.5z"/></svg><p>${feedbackText}</p></div>`;
+                
+                if (!button.dataset.checked) {
+                    button.dataset.checked = "true";
+                    onFirstCheckCallback();
+                }
+            } catch (error) {
+                console.error("Error checking answer:", error);
+                let errorMessage = "Could not get feedback at this time.";
+                 if (error.message.includes("API Error: 400")) {
+                    errorMessage = "Could not get feedback. The API key may be invalid or missing.";
+                }
+                feedbackArea.innerHTML = `<div class="fade-in p-3 mt-3 rounded-lg bg-red-100 text-red-800"><p>${errorMessage}</p></div>`;
+            } finally {
+                button.disabled = false;
+                button.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check2-circle" viewBox="0 0 16 16"><path d="M2.5 8a5.5 5.5 0 0 1 8.25-4.764.5.5 0 0 0 .5-.866A6.5 6.5 0 1 0 14.5 8a.5.5 0 0 0-1 0 5.5 5.5 0 1 1-11 0z"/><path d="M15.354 3.354a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l7-7z"/></svg> Check My Answer`;
+            }
         }
         
         function showCompletionMessage() {
-            // Function content is the same as the previous correct version
+            const completionDiv = document.createElement('div');
+            completionDiv.className = 'fade-in mt-8 p-6 text-center bg-green-100 border-2 border-green-300 rounded-xl';
+            completionDiv.innerHTML = `<h3 class="text-2xl font-bold text-green-800">🎉 Practice Complete! 🎉</h3><p class="mt-2 text-green-700">Great job! You've completed this set.</p>`;
+            practiceArea.appendChild(completionDiv);
         }
     </script>
 </body>
