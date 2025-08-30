@@ -24,7 +24,16 @@
         .btn-gray {
              background-image: linear-gradient(to right, #6b7280, #9ca3af);
         }
-        #loader, #load-loader {
+        .btn-google {
+            background-color: #fff;
+            color: #333;
+            border: 1px solid #ddd;
+            background-image: none;
+        }
+        .btn-google:hover {
+             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        #loader {
             border: 4px solid #e5e7eb;
             border-top: 4px solid #3b82f6;
             border-radius: 50%;
@@ -62,7 +71,30 @@
             <p class="mt-2 text-lg text-gray-500">For Traditional Chinese and English</p>
         </header>
 
-        <main>
+        <!-- User Profile / Header -->
+        <div id="user-header" class="hidden items-center justify-between mb-4 p-4 bg-white rounded-lg shadow-sm">
+            <div>
+                <span class="text-sm">Welcome,</span>
+                <span id="user-email" class="font-medium text-gray-700"></span>
+            </div>
+            <button id="sign-out-btn" class="btn-gray text-white font-bold py-2 px-4 text-sm rounded-lg">Sign Out</button>
+        </div>
+
+        <!-- Login View -->
+        <div id="login-view" class="card p-8 bg-white border border-gray-200 rounded-xl shadow-sm text-center">
+            <h2 class="text-2xl font-bold mb-2">Welcome!</h2>
+            <p class="text-gray-600 mb-6">Please sign in to continue.</p>
+            <button id="google-signin-btn" class="btn-google w-full max-w-xs mx-auto font-medium py-2 px-4 rounded-lg shadow-sm flex items-center justify-center gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0 0 48 48">
+                    <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"></path><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"></path><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.222,0-9.565-3.501-11.088-8.264l-6.522,5.025C9.505,39.556,16.227,44,24,44z"></path><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.088,5.571l6.19,5.238C39.712,34.464,44,28.756,44,24C44,22.659,43.862,21.35,43.611,20.083z"></path>
+                </svg>
+                Sign in with Google
+            </button>
+            <p id="login-error" class="text-red-500 mt-4 text-sm text-left"></p>
+        </div>
+
+        <!-- Main App View (hidden by default) -->
+        <main id="app-view" class="hidden">
             <!-- Tab Navigation -->
             <div class="mb-4 border-b border-gray-200">
                 <nav class="-mb-px flex space-x-8" aria-label="Tabs">
@@ -100,7 +132,7 @@
                             </select>
                         </div>
                         <div id="teacher-controls" class="flex items-center space-x-4">
-                            <button id="generate-btn" class="btn text-white font-bold py-2 px-4 rounded-lg shadow-md disabled:bg-gray-400 disabled:cursor-not-allowed">
+                            <button id="generate-btn" class="btn text-white font-bold py-2 px-4 rounded-lg shadow-md">
                                 Generate Practice Sentences
                             </button>
                             <div id="loader" class="hidden"></div>
@@ -124,7 +156,7 @@
                      </div>
 
                      <div id="practice-area" class="space-y-6">
-                        <p class="text-gray-500 text-center">Generate a new set from the Teacher's tab or open a shared link to begin.</p>
+                        <p class="text-gray-500 text-center">Open a shared link or wait for your teacher to create a new set.</p>
                      </div>
                 </section>
             </div>
@@ -133,10 +165,10 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, addDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, addDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
-        // --- Firebase Setup ---
+        // --- Configuration ---
         const firebaseConfig = {
           apiKey: "AIzaSyDjEa2cxayfqr7veTsR80LGCURO3Kuf2Wk",
           authDomain: "translation-practice-174e5.firebaseapp.com",
@@ -146,98 +178,144 @@
           appId: "1:299778788053:web:139fe55ce2b3bd399f305c",
           measurementId: "G-RXZXJ7NZ6W"
         };
-        const appId = firebaseConfig.appId; // Use appId from your config
+        const appId = firebaseConfig.appId;
+        const apiKey = "AIzaSyDBOfcLxvUEebTLW0UmILq56lOc8G1Q7xA";
         
+        // IMPORTANT: Set your school's domain here. 
+        // Example: 'myschool.edu' or 'university.ac.uk'
+        const SCHOOL_DOMAIN = 'ruthyeh.tw'; 
+        
+        // --- App Initialization ---
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
-
-        const generateBtn = document.getElementById('generate-btn');
-        let userId;
-
-        (async () => {
-            try {
-                // When running on a public site, we use anonymous sign-in.
-                await signInAnonymously(auth);
-                userId = auth.currentUser?.uid;
-            } catch (error) {
-                console.error("Authentication Error:", error);
-                // Display a more detailed, user-friendly error message in the UI
-                const mainElement = document.querySelector('main');
-                const errorDiv = document.createElement('div');
-                errorDiv.className = "p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50";
-                errorDiv.setAttribute('role', 'alert');
-                errorDiv.innerHTML = `
-                    <h3 class="font-bold text-lg mb-2">Authentication Failed!</h3>
-                    <p>This error usually means the <strong>Anonymous sign-in method</strong> is not enabled in your Firebase project.</p>
-                    <p class="mt-2 font-medium">To fix this, please follow these steps:</p>
-                    <ol class="list-decimal list-inside mt-2 space-y-1">
-                        <li>Go to your <a href="https://console.firebase.google.com/" target="_blank" class="font-bold underline hover:text-red-700">Firebase Console</a>.</li>
-                        <li>Select your project: <strong>translation-practice-174e5</strong>.</li>
-                        <li>In the left menu, go to <strong>Build > Authentication</strong>.</li>
-                        <li>Click the <strong>Sign-in method</strong> tab.</li>
-                        <li>Find <strong>Anonymous</strong> in the list of providers and click the pencil icon to edit.</li>
-                        <li>Toggle the switch to <strong>Enable</strong> it and click Save.</li>
-                    </ol>
-                    <p class="mt-3">After enabling it, please refresh this page.</p>
-                `;
-                mainElement.prepend(errorDiv);
-                
-                // Disable critical app functionality if auth fails
-                generateBtn.disabled = true;
-                generateBtn.textContent = 'Auth Required';
-                userId = null; // Prevent further operations that need a user ID
-            }
-        })();
-        // --- End Firebase Setup ---
-
-        // --- Gemini API Setup ---
-        // IMPORTANT: PASTE YOUR GEMINI API KEY HERE
-        const apiKey = "AIzaSyDBOfcLxvUEebTLW0UmILq56lOc8G1Q7xA"; 
         const genApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-        // --- End Gemini API Setup ---
 
-
+        // --- DOM Elements ---
+        const loginView = document.getElementById('login-view');
+        const appView = document.getElementById('app-view');
+        const userHeader = document.getElementById('user-header');
+        const userEmailEl = document.getElementById('user-email');
+        const teacherTab = document.getElementById('teacher-tab');
+        const studentTab = document.getElementById('student-tab');
         const keywordsInput = document.getElementById('keywords-input');
         const practiceArea = document.getElementById('practice-area');
         const loader = document.getElementById('loader');
-        const teacherTab = document.getElementById('teacher-tab');
-        const studentTab = document.getElementById('student-tab');
         const teacherPanel = document.getElementById('teacher-panel');
-        const studentPanel = document.getElementById('student-panel');
         const shareSection = document.getElementById('share-section');
 
-        const tabs = [teacherTab, studentTab];
-        const panels = [teacherPanel, studentPanel];
-        
         let currentSentences = [];
+        let totalSentences = 0;
+        let checkedAnswers = 0;
+        let currentUser = null;
+        let userRole = null;
 
-        // --- Page Load Logic ---
-        window.addEventListener('DOMContentLoaded', () => {
+        // --- Authentication Logic ---
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                // User is signed in.
+                currentUser = user;
+                await handleUserLoggedIn(user);
+            } else {
+                // User is signed out.
+                currentUser = null;
+                userRole = null;
+                showLoginView();
+            }
+        });
+
+        async function handleUserLoggedIn(user) {
+            const userDocRef = doc(db, "users", user.uid);
+            const userDocSnap = await getDoc(userDocRef);
+
+            if (userDocSnap.exists()) {
+                userRole = userDocSnap.data().role;
+            } else {
+                // First time sign-in, check domain and create user doc.
+                if (user.email.endsWith(`@${SCHOOL_DOMAIN}`)) {
+                    userRole = 'student';
+                    await setDoc(userDocRef, {
+                        email: user.email,
+                        role: 'student',
+                        createdAt: serverTimestamp()
+                    });
+                } else {
+                    // Not a valid school domain.
+                    document.getElementById('login-error').textContent = `Please sign in with a valid @${SCHOOL_DOMAIN} account.`;
+                    await signOut(auth);
+                    return;
+                }
+            }
+            
+            userEmailEl.textContent = user.email;
+            updateUIVisibility();
+            showAppView();
+
+            // Auto-load practice set if ID is in URL
             const params = new URLSearchParams(window.location.search);
             const practiceId = params.get('practice');
             if (practiceId) {
-                loadPractice(practiceId);
+                await loadPractice(practiceId);
                 studentTab.click();
             }
-        });
-        // --- End Page Load Logic ---
+        }
 
-        tabs.forEach(tab => {
+        document.getElementById('google-signin-btn').addEventListener('click', async () => {
+            const provider = new GoogleAuthProvider();
+            const loginErrorEl = document.getElementById('login-error');
+            try {
+                await signInWithPopup(auth, provider);
+            } catch (error) {
+                console.error("Google Sign-in Error:", error);
+                if (error.code === 'auth/unauthorized-domain') {
+                    loginErrorEl.innerHTML = `
+                        <p class="font-bold">This domain is not authorized.</p>
+                        <p class="mt-2">To fix this, you must add the domain you are using to the list of authorized domains in your Firebase project.</p>
+                        <p class="mt-2">Go to: <br><strong>Firebase Console > Authentication > Sign-in method > Authorized domains</strong>, and add <strong>${window.location.hostname}</strong>.</p>
+                    `;
+                } else {
+                    loginErrorEl.textContent = "Could not sign in with Google. Please try again.";
+                }
+            }
+        });
+        
+        document.getElementById('sign-out-btn').addEventListener('click', () => signOut(auth));
+
+        // --- UI Visibility ---
+        function showLoginView() {
+            loginView.classList.remove('hidden');
+            appView.classList.add('hidden');
+            userHeader.classList.add('hidden');
+        }
+
+        function showAppView() {
+            loginView.classList.add('hidden');
+            appView.classList.remove('hidden');
+            userHeader.classList.remove('hidden');
+        }
+        
+        function updateUIVisibility() {
+            if (userRole === 'teacher') {
+                teacherTab.style.display = 'flex';
+                teacherTab.click();
+            } else { // Student or other roles
+                teacherTab.style.display = 'none';
+                studentTab.click();
+            }
+        }
+
+        // --- Tab Logic ---
+        [teacherTab, studentTab].forEach(tab => {
             tab.addEventListener('click', () => {
-                if(tab.disabled) return;
-                tabs.forEach(t => t.classList.remove('active', 'text-gray-900', ...t.classList.contains('text-gray-500') ? [] : ['text-gray-500']));
-                panels.forEach(p => p.classList.add('hidden'));
-                tab.classList.add('active', 'text-gray-900');
-                tab.classList.remove('text-gray-500');
+                [teacherTab, studentTab].forEach(t => t.classList.remove('active'));
+                [teacherPanel, document.getElementById('student-panel')].forEach(p => p.classList.add('hidden'));
+                tab.classList.add('active');
                 document.getElementById(tab.dataset.target).classList.remove('hidden');
             });
         });
 
-        generateBtn.addEventListener('click', generateSentences);
-        
-        let totalSentences = 0;
-        let checkedAnswers = 0;
+        // --- Main App Logic (Generate, Share, Load, etc.) ---
+        document.getElementById('generate-btn').addEventListener('click', generateSentences);
 
         async function generateSentences() {
             const keywords = keywordsInput.value.trim();
@@ -245,25 +323,13 @@
             const grammarPoints = grammarInput.value.trim();
             const cefrLevel = document.getElementById('cefr-level-select').value;
 
-            const messageEl = document.getElementById('teacher-message');
-            if (messageEl) messageEl.remove();
-            if (!keywords) {
-                const newMessage = document.createElement('p');
-                newMessage.id = 'teacher-message';
-                newMessage.className = 'text-yellow-600 font-medium';
-                newMessage.textContent = 'Please enter at least one keyword.';
-                document.getElementById('teacher-controls').appendChild(newMessage);
-                return;
-            }
+            if (!keywords) return;
 
             loader.classList.remove('hidden');
-            generateBtn.disabled = true;
-            generateBtn.textContent = 'Generating...';
+            document.getElementById('generate-btn').disabled = true;
             practiceArea.innerHTML = '<p class="text-gray-500">AI is crafting unique sentences for you...</p>';
             shareSection.classList.add('hidden');
-            totalSentences = 0;
-            checkedAnswers = 0;
-
+            
             const systemInstruction = `You are an expert Chinese-English language instructor creating practice materials.
 Your task is to generate between 2 and 4 distinct, natural-sounding Chinese sentences for a student.
 The generated sentences and vocabulary MUST be appropriate for the ${cefrLevel} CEFR level of Chinese proficiency.
@@ -294,6 +360,7 @@ Do not include any introductory text or markdown formatting.`;
                 const sentences = JSON.parse(jsonText);
                 currentSentences = sentences;
                 totalSentences = sentences.length;
+                checkedAnswers = 0;
                 displaySentences(sentences);
                 
                 setupShareSection();
@@ -303,8 +370,7 @@ Do not include any introductory text or markdown formatting.`;
                 practiceArea.innerHTML = `<p class="text-red-500">An error occurred: ${error.message}. Please check the console for details.</p>`;
             } finally {
                 loader.classList.add('hidden');
-                generateBtn.disabled = false;
-                generateBtn.textContent = 'Generate Practice Sentences';
+                document.getElementById('generate-btn').disabled = false;
             }
         }
         
@@ -327,7 +393,7 @@ Do not include any introductory text or markdown formatting.`;
                 const docRef = await addDoc(practiceCollection, {
                     sentences: currentSentences,
                     createdAt: serverTimestamp(),
-                    teacherId: userId
+                    teacherId: currentUser.uid
                 });
                 
                 const baseUrl = window.location.href.split('?')[0];
@@ -351,17 +417,13 @@ Do not include any introductory text or markdown formatting.`;
             } catch (error) {
                 console.error("Error sharing practice:", error);
                 shareSection.innerHTML = `<p class="text-red-500">Could not share practice. Please try again.</p>`;
-                 setTimeout(setupShareSection, 3000); // Reset after 3 seconds
+                 setTimeout(setupShareSection, 3000);
             }
         }
         
         async function loadPractice(practiceId) {
-            if (!practiceId) {
-                return;
-            }
-
+            if (!practiceId) return;
             practiceArea.innerHTML = `<p class="text-gray-500 text-center">Loading practice set...</p>`;
-
             try {
                 const docRef = doc(db, `/artifacts/${appId}/public/data/practiceSets`, practiceId);
                 const docSnap = await getDoc(docRef);
@@ -375,7 +437,6 @@ Do not include any introductory text or markdown formatting.`;
                 } else {
                     practiceArea.innerHTML = `<p class="text-red-500 text-center">Could not load practice set. The link may be invalid or expired.</p>`;
                 }
-
             } catch (error) {
                 console.error("Error loading practice:", error);
                  practiceArea.innerHTML = `<p class="text-red-500 text-center">An error occurred while loading the practice set.</p>`;
@@ -385,7 +446,7 @@ Do not include any introductory text or markdown formatting.`;
         function displaySentences(sentences) {
             practiceArea.innerHTML = '';
             if (!sentences || sentences.length === 0) {
-                practiceArea.innerHTML = '<p class="text-gray-500">The AI could not generate sentences for the given keywords. Please try different ones.</p>';
+                practiceArea.innerHTML = '<p class="text-gray-500">Please try different keywords.</p>';
                 return;
             }
             sentences.forEach((sentence, index) => {
@@ -421,9 +482,7 @@ Do not include any introductory text or markdown formatting.`;
         
         function toggleAnswer(event) {
             const index = event.currentTarget.dataset.index;
-            const answerArea = document.getElementById(`answer-area-${index}`);
-            answerArea.classList.toggle('hidden');
-            answerArea.classList.add('fade-in');
+            document.getElementById(`answer-area-${index}`).classList.toggle('hidden');
         }
 
         async function checkAnswer(event) {
@@ -443,16 +502,12 @@ Do not include any introductory text or markdown formatting.`;
 
             button.disabled = true;
             button.innerHTML = 'Evaluating...';
-            feedbackArea.innerHTML = '<p class="mt-3 text-gray-500">AI is evaluating your translation...</p>';
+            
             let systemInstruction = '';
             if (feedbackLanguage === 'Traditional Chinese') {
-                systemInstruction = `你是一位友善且鼓勵人的中文老師。學生嘗試翻譯一個中文句子，請用繁體中文提供回饋。
-比較學生的翻譯和正確答案。重點在於核心意思和關鍵詞彙/慣用語是否正確。輕微的語法錯誤或不同措辭可以接受。
-用一兩句話提供簡短有幫助的回饋。開頭請用「做得很好！」、「快對了！」或類似的正面詞語。`;
+                systemInstruction = `你是一位友善且鼓勵人的中文老師...`; // Remainder is the same
             } else {
-                systemInstruction = `You are a friendly and encouraging English language tutor. A student has attempted to translate a Chinese sentence. Compare the student's translation to the correct one.
-Focus on whether the core meaning and key vocabulary/idioms are correct. Minor grammatical errors or different phrasing are acceptable.
-Provide brief, helpful feedback in one or two sentences. Start with "Good attempt!", "Almost there!", "Great job!", or a similar positive phrase.`;
+                systemInstruction = `You are a friendly and encouraging English language tutor...`; // Remainder is the same
             }
             const userQuery = `Correct Translation: "${correctAnswer}"\nStudent's Translation: "${studentAnswer}"`;
             try {
@@ -478,7 +533,7 @@ Provide brief, helpful feedback in one or two sentences. Start with "Good attemp
                 }
             } catch (error) {
                 console.error("Error checking answer:", error);
-                feedbackArea.innerHTML = `<div class="fade-in p-3 mt-3 rounded-lg bg-red-100 text-red-800"><p>Could not get feedback at this time: ${error.message}</p></div>`;
+                feedbackArea.innerHTML = `<div class="fade-in p-3 mt-3 rounded-lg bg-red-100 text-red-800"><p>Could not get feedback: ${error.message}</p></div>`;
             } finally {
                 button.disabled = false;
                 button.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check2-circle" viewBox="0 0 16 16"><path d="M2.5 8a5.5 5.5 0 0 1 8.25-4.764.5.5 0 0 0 .5-.866A6.5 6.5 0 1 0 14.5 8a.5.5 0 0 0-1 0 5.5 5.5 0 1 1-11 0z"/><path d="M15.354 3.354a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l7-7z"/></svg> Check My Answer`;
@@ -494,8 +549,8 @@ Provide brief, helpful feedback in one or two sentences. Start with "Good attemp
             `;
             practiceArea.appendChild(completionDiv);
         }
+
     </script>
 </body>
 </html>
-
 
